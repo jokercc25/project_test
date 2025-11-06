@@ -15,6 +15,14 @@ const BatchSelectionPage = () => {
   const [applications, setApplications] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [editedData, setEditedData] = useState({});
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+    showSizeChanger: true,
+    pageSizeOptions: ['10', '20', '50', '100'],
+    showTotal: (total) => `共 ${total} 条数据`
+  });
 
   // 加载应用数据
   useEffect(() => {
@@ -27,6 +35,9 @@ const BatchSelectionPage = () => {
       const response = await getApplications();
       if (response.code === 200) {
         setApplications(response.data);
+        // 计算总记录数
+        const totalRecords = response.data.reduce((sum, app) => sum + app.groups.length, 0);
+        setPagination(prev => ({ ...prev, total: totalRecords }));
       } else {
         message.error(response.message || '加载数据失败');
       }
@@ -37,21 +48,12 @@ const BatchSelectionPage = () => {
     }
   };
 
-  // 转换数据为树形结构
-  const treeData = useMemo(() => {
+  // 转换数据为扁平结构（用于合并单元格）
+  const tableData = useMemo(() => {
     const data = [];
     applications.forEach(app => {
-      // 应用级节点
-      const appNode = {
-        key: `app-${app.appName}`,
-        appName: app.appName,
-        isApp: true,
-        children: []
-      };
-
-      // 分组级节点
-      app.groups.forEach(group => {
-        const groupNode = {
+      app.groups.forEach((group, index) => {
+        data.push({
           key: `group-${group.id}`,
           id: group.id,
           appName: app.appName,
@@ -62,14 +64,12 @@ const BatchSelectionPage = () => {
           spec: group.spec,
           diskSize: group.diskSize,
           podCount: group.podCount,
-          isApp: false,
+          // 用于合并单元格计算
+          rowSpan: index === 0 ? app.groups.length : 0,
           // 合并编辑数据
           ...editedData[group.id]
-        };
-        appNode.children.push(groupNode);
+        });
       });
-
-      data.push(appNode);
     });
     return data;
   }, [applications, editedData]);
@@ -92,123 +92,114 @@ const BatchSelectionPage = () => {
       dataIndex: 'appName',
       key: 'appName',
       width: 150,
-      render: (text, record) => record.isApp ? <strong>{text}</strong> : ''
+      onCell: (record) => ({
+        rowSpan: record.rowSpan,
+      }),
+      render: (text) => <strong>{text}</strong>
     },
     {
       title: '分组名',
       dataIndex: 'groupName',
       key: 'groupName',
       width: 150,
-      render: (text, record) => {
-        if (record.isApp) return null;
-        return (
-          <EditableCell
-            value={text}
-            onChange={(value) => handleFieldChange(record.id, 'groupName', value)}
-            placeholder="请输入分组名"
-          />
-        );
-      }
+      render: (text, record) => (
+        <EditableCell
+          value={text}
+          onChange={(value) => handleFieldChange(record.id, 'groupName', value)}
+          placeholder="请输入分组名"
+        />
+      )
     },
     {
       title: '灰度分组名',
       dataIndex: 'grayGroupName',
       key: 'grayGroupName',
       width: 150,
-      render: (text, record) => {
-        if (record.isApp) return null;
-        return (
-          <EditableCell
-            value={text}
-            onChange={(value) => handleFieldChange(record.id, 'grayGroupName', value)}
-            placeholder="请输入灰度分组名"
-          />
-        );
-      }
+      render: (text, record) => (
+        <EditableCell
+          value={text}
+          onChange={(value) => handleFieldChange(record.id, 'grayGroupName', value)}
+          placeholder="请输入灰度分组名"
+        />
+      )
     },
     {
       title: '机房',
       dataIndex: 'idc',
       key: 'idc',
       width: 120,
-      render: (text, record) => {
-        if (record.isApp) return null;
-        return (
-          <EditableCell
-            value={text}
-            onChange={(value) => handleFieldChange(record.id, 'idc', value)}
-            placeholder="请输入机房"
-          />
-        );
-      }
+      render: (text, record) => (
+        <EditableCell
+          value={text}
+          onChange={(value) => handleFieldChange(record.id, 'idc', value)}
+          placeholder="请输入机房"
+        />
+      )
     },
     {
       title: '分区',
       dataIndex: 'zone',
       key: 'zone',
       width: 120,
-      render: (text, record) => {
-        if (record.isApp) return null;
-        return (
-          <EditableCell
-            value={text}
-            onChange={(value) => handleFieldChange(record.id, 'zone', value)}
-            placeholder="请输入分区"
-          />
-        );
-      }
+      render: (text, record) => (
+        <EditableCell
+          value={text}
+          onChange={(value) => handleFieldChange(record.id, 'zone', value)}
+          placeholder="请输入分区"
+        />
+      )
     },
     {
       title: '参数规格',
       dataIndex: 'spec',
       key: 'spec',
       width: 120,
-      render: (text, record) => {
-        if (record.isApp) return null;
-        return (
-          <EditableCell
-            value={text}
-            onChange={(value) => handleFieldChange(record.id, 'spec', value)}
-            placeholder="请输入参数规格"
-          />
-        );
-      }
+      render: (text, record) => (
+        <EditableCell
+          value={text}
+          onChange={(value) => handleFieldChange(record.id, 'spec', value)}
+          placeholder="请输入参数规格"
+        />
+      )
     },
     {
       title: '硬盘大小(GB)',
       dataIndex: 'diskSize',
       key: 'diskSize',
       width: 140,
-      render: (text, record) => {
-        if (record.isApp) return null;
-        return (
-          <EditableCell
-            value={text}
-            onChange={(value) => handleFieldChange(record.id, 'diskSize', value)}
-            type="number"
-            min={1}
-          />
-        );
-      }
+      render: (text, record) => (
+        <EditableCell
+          value={text}
+          onChange={(value) => handleFieldChange(record.id, 'diskSize', value)}
+          type="number"
+          min={1}
+        />
+      )
     },
     {
       title: 'Pod数量',
       dataIndex: 'podCount',
       key: 'podCount',
       width: 120,
-      render: (text, record) => {
-        if (record.isApp) return null;
-        return (
-          <EditableCell
-            value={text}
-            onChange={(value) => handleFieldChange(record.id, 'podCount', value)}
-            type="number"
-            min={1}
-          />
-        );
-      }
+      render: (text, record) => (
+        <EditableCell
+          value={text}
+          onChange={(value) => handleFieldChange(record.id, 'podCount', value)}
+          type="number"
+          min={1}
+        />
+      )
     }
   ];
+
+  // 处理分页变化
+  const handleTableChange = (paginationConfig) => {
+    setPagination({
+      ...pagination,
+      current: paginationConfig.current,
+      pageSize: paginationConfig.pageSize
+    });
+  };
 
   // 行选择配置
   const rowSelection = {
@@ -216,32 +207,6 @@ const BatchSelectionPage = () => {
     onChange: (selectedKeys, selectedRows) => {
       setSelectedRowKeys(selectedKeys);
     },
-    onSelect: (record, selected, selectedRows) => {
-      // 如果是应用级勾选，自动勾选/取消所有子分组
-      if (record.isApp) {
-        const childKeys = record.children.map(child => child.key);
-        if (selected) {
-          setSelectedRowKeys(prev => [...new Set([...prev, ...childKeys])]);
-        } else {
-          setSelectedRowKeys(prev => prev.filter(key => !childKeys.includes(key)));
-        }
-      }
-    },
-    onSelectAll: (selected, selectedRows, changeRows) => {
-      if (selected) {
-        // 全选时只选择分组行
-        const allGroupKeys = [];
-        treeData.forEach(app => {
-          app.children.forEach(group => {
-            allGroupKeys.push(group.key);
-          });
-        });
-        setSelectedRowKeys(allGroupKeys);
-      } else {
-        setSelectedRowKeys([]);
-      }
-    },
-    checkStrictly: false,
     getCheckboxProps: (record) => ({
       disabled: false,
     })
@@ -255,23 +220,18 @@ const BatchSelectionPage = () => {
     }
 
     // 收集勾选的分组数据
-    const selectedTasks = [];
-    treeData.forEach(app => {
-      app.children.forEach(group => {
-        if (selectedRowKeys.includes(group.key)) {
-          selectedTasks.push({
-            appName: group.appName,
-            groupName: group.groupName,
-            grayGroupName: group.grayGroupName,
-            idc: group.idc,
-            zone: group.zone,
-            spec: group.spec,
-            diskSize: group.diskSize,
-            podCount: group.podCount
-          });
-        }
-      });
-    });
+    const selectedTasks = tableData
+      .filter(group => selectedRowKeys.includes(group.key))
+      .map(group => ({
+        appName: group.appName,
+        groupName: group.groupName,
+        grayGroupName: group.grayGroupName,
+        idc: group.idc,
+        zone: group.zone,
+        spec: group.spec,
+        diskSize: group.diskSize,
+        podCount: group.podCount
+      }));
 
     // 校验必填字段
     for (const task of selectedTasks) {
@@ -334,12 +294,12 @@ const BatchSelectionPage = () => {
       <div className="table-container">
         <Table
           columns={columns}
-          dataSource={treeData}
+          dataSource={tableData}
           loading={loading}
           rowSelection={rowSelection}
-          pagination={false}
-          scroll={{ x: 1200, y: 600 }}
-          defaultExpandAllRows
+          pagination={pagination}
+          onChange={handleTableChange}
+          scroll={{ x: 1200 }}
           bordered
         />
       </div>
