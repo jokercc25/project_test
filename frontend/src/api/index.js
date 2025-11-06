@@ -33,7 +33,23 @@ export const submitTasks = (tasks) => {
   return apiClient.post('/tasks/submit', { tasks });
 };
 
+/**
+ * 查询所有任务
+ */
+export const getTasks = () => {
+  return apiClient.get('/tasks');
+};
+
+/**
+ * 清空所有任务
+ */
+export const clearTasks = () => {
+  return apiClient.delete('/tasks');
+};
+
 export default {
   getApplications,
-  submitTasks
+  submitTasks,
+  getTasks,
+  clearTasks
 };

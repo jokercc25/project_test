@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Table, Button, message, Space, Typography } from 'antd';
-import { getApplications, submitTasks } from '../api';
+import { Table, Button, message, Space, Typography, Modal } from 'antd';
+import { getApplications, submitTasks, getTasks, clearTasks } from '../api';
 import EditableCell from './EditableCell';
 import './BatchSelectionPage.css';
 
@@ -15,6 +15,9 @@ const BatchSelectionPage = () => {
   const [applications, setApplications] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [editedData, setEditedData] = useState({});
+  const [taskModalVisible, setTaskModalVisible] = useState(false);
+  const [tasks, setTasks] = useState([]);
+  const [taskLoading, setTaskLoading] = useState(false);
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -269,6 +272,112 @@ const BatchSelectionPage = () => {
     message.info('已清空勾选和编辑内容');
   };
 
+  // 查看任务列表
+  const handleViewTasks = async () => {
+    setTaskModalVisible(true);
+    setTaskLoading(true);
+    try {
+      const response = await getTasks();
+      if (response.code === 200) {
+        setTasks(response.data);
+      } else {
+        message.error(response.message || '加载任务列表失败');
+      }
+    } catch (error) {
+      message.error('加载任务列表失败: ' + error.message);
+    } finally {
+      setTaskLoading(false);
+    }
+  };
+
+  // 清空任务
+  const handleClearTasks = () => {
+    Modal.confirm({
+      title: '确认清空',
+      content: '确定要清空所有任务吗？此操作不可恢复！',
+      okText: '确定',
+      okType: 'danger',
+      cancelText: '取消',
+      onOk: async () => {
+        try {
+          const response = await clearTasks();
+          if (response.code === 200) {
+            message.success('任务已全部清空');
+            setTasks([]);
+          } else {
+            message.error(response.message || '清空失败');
+          }
+        } catch (error) {
+          message.error('清空失败: ' + error.message);
+        }
+      }
+    });
+  };
+
+  // 任务表格列定义
+  const taskColumns = [
+    {
+      title: '任务ID',
+      dataIndex: 'taskId',
+      key: 'taskId',
+      width: 80,
+    },
+    {
+      title: '应用名',
+      dataIndex: 'appName',
+      key: 'appName',
+      width: 120,
+    },
+    {
+      title: '分组名',
+      dataIndex: 'groupName',
+      key: 'groupName',
+      width: 120,
+    },
+    {
+      title: '灰度分组名',
+      dataIndex: 'grayGroupName',
+      key: 'grayGroupName',
+      width: 120,
+    },
+    {
+      title: '机房',
+      dataIndex: 'idc',
+      key: 'idc',
+      width: 100,
+    },
+    {
+      title: '分区',
+      dataIndex: 'zone',
+      key: 'zone',
+      width: 100,
+    },
+    {
+      title: '参数规格',
+      dataIndex: 'spec',
+      key: 'spec',
+      width: 100,
+    },
+    {
+      title: '硬盘大小(GB)',
+      dataIndex: 'diskSize',
+      key: 'diskSize',
+      width: 120,
+    },
+    {
+      title: 'Pod数量',
+      dataIndex: 'podCount',
+      key: 'podCount',
+      width: 100,
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      width: 180,
+    },
+  ];
+
   return (
     <div className="batch-selection-page">
       <div className="page-header">
@@ -288,6 +397,9 @@ const BatchSelectionPage = () => {
           <Button onClick={handleCancel}>
             取消
           </Button>
+          <Button onClick={handleViewTasks}>
+            查看任务
+          </Button>
         </Space>
       </div>
 
@@ -303,6 +415,36 @@ const BatchSelectionPage = () => {
           bordered
         />
       </div>
+
+      <Modal
+        title="任务列表"
+        open={taskModalVisible}
+        onCancel={() => setTaskModalVisible(false)}
+        footer={[
+          <Button key="clear" danger onClick={handleClearTasks}>
+            清空任务
+          </Button>,
+          <Button key="close" onClick={() => setTaskModalVisible(false)}>
+            关闭
+          </Button>
+        ]}
+        width={1200}
+      >
+        <Table
+          columns={taskColumns}
+          dataSource={tasks}
+          loading={taskLoading}
+          rowKey="taskId"
+          pagination={{
+            pageSize: 10,
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50', '100'],
+            showTotal: (total) => `共 ${total} 条任务`
+          }}
+          scroll={{ x: 1100 }}
+          bordered
+        />
+      </Modal>
     </div>
   );
 };

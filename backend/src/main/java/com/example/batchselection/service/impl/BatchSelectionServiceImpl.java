@@ -93,6 +93,22 @@ public class BatchSelectionServiceImpl implements BatchSelectionService {
         return new TaskSubmitResponse(taskIds, taskIds.size());
     }
 
+    @Override
+    public List<TaskInfo> getAllTasks() {
+        log.info("开始查询所有任务数据");
+        List<TaskInfo> tasks = taskInfoRepository.findAll();
+        log.info("查询完成，共找到 {} 条任务", tasks.size());
+        return tasks;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void clearAllTasks() {
+        log.info("开始清空所有任务数据并重置自增ID");
+        taskInfoRepository.truncateTable();
+        log.info("任务数据已全部清空，自增ID已重置");
+    }
+
     /**
      * 将AppInfo转换为GroupInfoDTO
      */

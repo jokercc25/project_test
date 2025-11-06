@@ -4,6 +4,7 @@ import com.example.batchselection.dto.ApiResponse;
 import com.example.batchselection.dto.ApplicationResponseDTO;
 import com.example.batchselection.dto.BatchTaskSubmitRequest;
 import com.example.batchselection.dto.TaskSubmitResponse;
+import com.example.batchselection.entity.TaskInfo;
 import com.example.batchselection.service.BatchSelectionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -58,6 +59,38 @@ public class BatchSelectionController {
         } catch (Exception e) {
             log.error("任务提交失败", e);
             return ApiResponse.error("任务提交失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 查询所有任务列表
+     * GET /api/tasks
+     */
+    @GetMapping("/tasks")
+    public ApiResponse<List<TaskInfo>> getTasks() {
+        log.info("收到查询任务列表请求");
+        try {
+            List<TaskInfo> tasks = batchSelectionService.getAllTasks();
+            return ApiResponse.success(tasks);
+        } catch (Exception e) {
+            log.error("查询任务列表失败", e);
+            return ApiResponse.error("查询任务列表失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 清空所有任务
+     * DELETE /api/tasks
+     */
+    @DeleteMapping("/tasks")
+    public ApiResponse<String> clearTasks() {
+        log.info("收到清空任务请求");
+        try {
+            batchSelectionService.clearAllTasks();
+            return ApiResponse.success("任务已全部清空");
+        } catch (Exception e) {
+            log.error("清空任务失败", e);
+            return ApiResponse.error("清空任务失败: " + e.getMessage());
         }
     }
 }

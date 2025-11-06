@@ -3,6 +3,7 @@ package com.example.batchselection.service;
 import com.example.batchselection.dto.ApplicationResponseDTO;
 import com.example.batchselection.dto.TaskSubmitDTO;
 import com.example.batchselection.dto.TaskSubmitResponse;
+import com.example.batchselection.entity.TaskInfo;
 import java.util.List;
 
 /**
@@ -22,4 +23,15 @@ public interface BatchSelectionService {
      * @return 提交结果，包含生成的任务ID列表
      */
     TaskSubmitResponse submitTasks(List<TaskSubmitDTO> tasks);
+    
+    /**
+     * 查询所有任务列表
+     * @return 任务列表，按创建时间降序
+     */
+    List<TaskInfo> getAllTasks();
+    
+    /**
+     * 清空所有任务
+     */
+    void clearAllTasks();
 }
