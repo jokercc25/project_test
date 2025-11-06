@@ -4,6 +4,7 @@ com/example/batchselection/service/BatchSelectionService.class
 com/example/batchselection/BatchSelectionApplication.class
 com/example/batchselection/dto/TaskSubmitResponse.class
 com/example/batchselection/dto/TaskSubmitDTO.class
+com/example/batchselection/config/MetricsConfig.class
 com/example/batchselection/service/impl/BatchSelectionServiceImpl.class
 com/example/batchselection/dto/BatchTaskSubmitRequest.class
 com/example/batchselection/entity/AppInfo.class

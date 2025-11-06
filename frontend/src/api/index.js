@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { performanceMonitor, errorMonitor } from '../utils/monitor';
 
 // 创建axios实例
 const apiClient = axios.create({
@@ -9,10 +10,54 @@ const apiClient = axios.create({
   }
 });
 
-// 响应拦截器
-apiClient.interceptors.response.use(
-  response => response.data,
+// 请求拦截器 - 记录开始时间
+apiClient.interceptors.request.use(
+  config => {
+    config.metadata = { startTime: Date.now() };
+    return config;
+  },
   error => {
+    errorMonitor.logError(error, { type: 'request' });
+    return Promise.reject(error);
+  }
+);
+
+// 响应拦截器 - 记录性能和错误
+apiClient.interceptors.response.use(
+  response => {
+    const endTime = Date.now();
+    const startTime = response.config.metadata?.startTime || endTime;
+    
+    // 记录 API 请求性能
+    performanceMonitor.recordApiCall(
+      response.config.url,
+      startTime,
+      endTime,
+      true
+    );
+    
+    return response.data;
+  },
+  error => {
+    const endTime = Date.now();
+    const startTime = error.config?.metadata?.startTime || endTime;
+    
+    // 记录 API 请求失败
+    performanceMonitor.recordApiCall(
+      error.config?.url || 'unknown',
+      startTime,
+      endTime,
+      false
+    );
+    
+    // 记录错误信息
+    errorMonitor.logError(error, {
+      type: 'api',
+      url: error.config?.url,
+      status: error.response?.status,
+      message: error.response?.data?.message
+    });
+    
     console.error('API请求错误:', error);
     return Promise.reject(error);
   }

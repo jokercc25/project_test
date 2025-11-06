@@ -1,6 +1,7 @@
 /Users/zhenglixin.11/datas/AICoderFilms/project_test/backend/src/main/java/com/example/batchselection/controller/BatchSelectionController.java
 /Users/zhenglixin.11/datas/AICoderFilms/project_test/backend/src/main/java/com/example/batchselection/entity/AppInfo.java
 /Users/zhenglixin.11/datas/AICoderFilms/project_test/backend/src/main/java/com/example/batchselection/BatchSelectionApplication.java
+/Users/zhenglixin.11/datas/AICoderFilms/project_test/backend/src/main/java/com/example/batchselection/config/MetricsConfig.java
 /Users/zhenglixin.11/datas/AICoderFilms/project_test/backend/src/main/java/com/example/batchselection/entity/TaskInfo.java
 /Users/zhenglixin.11/datas/AICoderFilms/project_test/backend/src/main/java/com/example/batchselection/service/impl/BatchSelectionServiceImpl.java
 /Users/zhenglixin.11/datas/AICoderFilms/project_test/backend/src/main/java/com/example/batchselection/dto/BatchTaskSubmitRequest.java

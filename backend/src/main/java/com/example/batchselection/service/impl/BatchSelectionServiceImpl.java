@@ -9,6 +9,7 @@ import com.example.batchselection.entity.TaskInfo;
 import com.example.batchselection.repository.AppInfoRepository;
 import com.example.batchselection.repository.TaskInfoRepository;
 import com.example.batchselection.service.BatchSelectionService;
+import io.micrometer.core.instrument.Counter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,8 @@ public class BatchSelectionServiceImpl implements BatchSelectionService {
 
     private final AppInfoRepository appInfoRepository;
     private final TaskInfoRepository taskInfoRepository;
+    private final Counter taskSubmitSuccessCounter;
+    private final Counter taskSubmitFailCounter;
 
     @Override
     public List<ApplicationResponseDTO> getAllApplications() {
@@ -67,30 +70,40 @@ public class BatchSelectionServiceImpl implements BatchSelectionService {
     public TaskSubmitResponse submitTasks(List<TaskSubmitDTO> tasks) {
         log.info("开始提交任务，任务数量: {}", tasks.size());
         
-        if (tasks == null || tasks.isEmpty()) {
-            throw new IllegalArgumentException("任务列表不能为空");
+        try {
+            if (tasks == null || tasks.isEmpty()) {
+                throw new IllegalArgumentException("任务列表不能为空");
+            }
+            
+            // 限制单次提交数量
+            if (tasks.size() > 1000) {
+                throw new IllegalArgumentException("单次提交任务数量不能超过1000条");
+            }
+            
+            // 转换为任务实体并保存
+            List<TaskInfo> taskInfoList = tasks.stream()
+                .map(this::convertToTaskInfo)
+                .collect(Collectors.toList());
+            
+            List<TaskInfo> savedTasks = taskInfoRepository.saveAll(taskInfoList);
+            
+            // 收集生成的任务ID
+            List<Long> taskIds = savedTasks.stream()
+                .map(TaskInfo::getTaskId)
+                .collect(Collectors.toList());
+            
+            log.info("任务提交成功，生成任务ID: {}", taskIds);
+            
+            // 监控: 记录成功次数
+            taskSubmitSuccessCounter.increment(tasks.size());
+            
+            return new TaskSubmitResponse(taskIds, taskIds.size());
+        } catch (Exception e) {
+            // 监控: 记录失败次数
+            taskSubmitFailCounter.increment();
+            log.error("任务提交失败", e);
+            throw e;
         }
-        
-        // 限制单次提交数量
-        if (tasks.size() > 1000) {
-            throw new IllegalArgumentException("单次提交任务数量不能超过1000条");
-        }
-        
-        // 转换为任务实体并保存
-        List<TaskInfo> taskInfoList = tasks.stream()
-            .map(this::convertToTaskInfo)
-            .collect(Collectors.toList());
-        
-        List<TaskInfo> savedTasks = taskInfoRepository.saveAll(taskInfoList);
-        
-        // 收集生成的任务ID
-        List<Long> taskIds = savedTasks.stream()
-            .map(TaskInfo::getTaskId)
-            .collect(Collectors.toList());
-        
-        log.info("任务提交成功，生成任务ID: {}", taskIds);
-        
-        return new TaskSubmitResponse(taskIds, taskIds.size());
     }
 
     @Override
