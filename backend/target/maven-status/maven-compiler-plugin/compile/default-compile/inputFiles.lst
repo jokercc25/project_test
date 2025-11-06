@@ -1,0 +1,14 @@
+/Users/zhenglixin.11/datas/AICoderFilms/project_test/backend/src/main/java/com/example/batchselection/controller/BatchSelectionController.java
+/Users/zhenglixin.11/datas/AICoderFilms/project_test/backend/src/main/java/com/example/batchselection/entity/AppInfo.java
+/Users/zhenglixin.11/datas/AICoderFilms/project_test/backend/src/main/java/com/example/batchselection/BatchSelectionApplication.java
+/Users/zhenglixin.11/datas/AICoderFilms/project_test/backend/src/main/java/com/example/batchselection/entity/TaskInfo.java
+/Users/zhenglixin.11/datas/AICoderFilms/project_test/backend/src/main/java/com/example/batchselection/service/impl/BatchSelectionServiceImpl.java
+/Users/zhenglixin.11/datas/AICoderFilms/project_test/backend/src/main/java/com/example/batchselection/dto/BatchTaskSubmitRequest.java
+/Users/zhenglixin.11/datas/AICoderFilms/project_test/backend/src/main/java/com/example/batchselection/dto/GroupInfoDTO.java
+/Users/zhenglixin.11/datas/AICoderFilms/project_test/backend/src/main/java/com/example/batchselection/dto/TaskSubmitDTO.java
+/Users/zhenglixin.11/datas/AICoderFilms/project_test/backend/src/main/java/com/example/batchselection/service/BatchSelectionService.java
+/Users/zhenglixin.11/datas/AICoderFilms/project_test/backend/src/main/java/com/example/batchselection/dto/ApplicationResponseDTO.java
+/Users/zhenglixin.11/datas/AICoderFilms/project_test/backend/src/main/java/com/example/batchselection/repository/TaskInfoRepository.java
+/Users/zhenglixin.11/datas/AICoderFilms/project_test/backend/src/main/java/com/example/batchselection/dto/TaskSubmitResponse.java
+/Users/zhenglixin.11/datas/AICoderFilms/project_test/backend/src/main/java/com/example/batchselection/repository/AppInfoRepository.java
+/Users/zhenglixin.11/datas/AICoderFilms/project_test/backend/src/main/java/com/example/batchselection/dto/ApiResponse.java

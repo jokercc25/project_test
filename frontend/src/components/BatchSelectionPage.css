@@ -1,0 +1,69 @@
+.batch-selection-page {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background-color: #f5f5f5;
+}
+
+.page-header {
+  margin-bottom: 16px;
+}
+
+.page-header h3 {
+  margin: 0;
+  color: #1890ff;
+}
+
+.toolbar {
+  margin-bottom: 16px;
+  padding: 12px;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.table-container {
+  flex: 1;
+  background: white;
+  border-radius: 4px;
+  padding: 16px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  overflow: auto;
+}
+
+/* 表格自定义样式 */
+.table-container .ant-table {
+  font-size: 14px;
+}
+
+.table-container .ant-table-thead > tr > th {
+  background-color: #fafafa;
+  font-weight: 600;
+  color: #262626;
+}
+
+.table-container .ant-table-tbody > tr > td {
+  padding: 8px 12px;
+}
+
+.table-container .ant-table-tbody > tr:hover > td {
+  background-color: #e6f7ff;
+}
+
+/* 应用行样式 */
+.table-container .ant-table-tbody > tr.ant-table-row-level-0 {
+  background-color: #f0f0f0;
+}
+
+.table-container .ant-table-tbody > tr.ant-table-row-level-0:hover > td {
+  background-color: #e0e0e0;
+}
+
+/* 可编辑单元格高亮 */
+.table-container .ant-input:focus,
+.table-container .ant-input-number:focus {
+  border-color: #40a9ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}

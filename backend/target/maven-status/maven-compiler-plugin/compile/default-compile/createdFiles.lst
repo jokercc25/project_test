@@ -1,0 +1,14 @@
+com/example/batchselection/repository/AppInfoRepository.class
+com/example/batchselection/repository/TaskInfoRepository.class
+com/example/batchselection/service/BatchSelectionService.class
+com/example/batchselection/BatchSelectionApplication.class
+com/example/batchselection/dto/TaskSubmitResponse.class
+com/example/batchselection/dto/TaskSubmitDTO.class
+com/example/batchselection/service/impl/BatchSelectionServiceImpl.class
+com/example/batchselection/dto/BatchTaskSubmitRequest.class
+com/example/batchselection/entity/AppInfo.class
+com/example/batchselection/dto/GroupInfoDTO.class
+com/example/batchselection/entity/TaskInfo.class
+com/example/batchselection/dto/ApplicationResponseDTO.class
+com/example/batchselection/controller/BatchSelectionController.class
+com/example/batchselection/dto/ApiResponse.class
