@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Table, Button, message, Space, Typography, Modal } from 'antd';
+import { Table, Button, message, Space, Typography, Modal, Checkbox } from 'antd';
 import { getApplications, submitTasks, getTasks, clearTasks } from '../api';
 import EditableCell from './EditableCell';
 import './BatchSelectionPage.css';
@@ -70,12 +70,38 @@ const BatchSelectionPage = () => {
           // 用于合并单元格计算
           rowSpan: index === 0 ? app.groups.length : 0,
           // 合并编辑数据
-          ...editedData[group.id]
+          ...editedData[group.id],
+          // 存储应用的所有分组ID，用于全选功能
+          appGroupKeys: app.groups.map(g => `group-${g.id}`)
         });
       });
     });
     return data;
   }, [applications, editedData]);
+
+  // 处理应用级别的全选/取消全选
+  const handleAppCheckboxChange = (appGroupKeys, checked) => {
+    if (checked) {
+      // 全选该应用下的所有分组
+      const newSelectedKeys = Array.from(new Set([...selectedRowKeys, ...appGroupKeys]));
+      setSelectedRowKeys(newSelectedKeys);
+    } else {
+      // 取消选择该应用下的所有分组
+      const newSelectedKeys = selectedRowKeys.filter(key => !appGroupKeys.includes(key));
+      setSelectedRowKeys(newSelectedKeys);
+    }
+  };
+
+  // 检查某个应用下的所有分组是否都被选中
+  const isAppAllSelected = (appGroupKeys) => {
+    return appGroupKeys.every(key => selectedRowKeys.includes(key));
+  };
+
+  // 检查某个应用下是否有部分分组被选中
+  const isAppIndeterminate = (appGroupKeys) => {
+    const selectedCount = appGroupKeys.filter(key => selectedRowKeys.includes(key)).length;
+    return selectedCount > 0 && selectedCount < appGroupKeys.length;
+  };
 
   // 处理字段编辑
   const handleFieldChange = (recordId, fieldName, value) => {
@@ -94,11 +120,29 @@ const BatchSelectionPage = () => {
       title: '应用名',
       dataIndex: 'appName',
       key: 'appName',
-      width: 150,
+      width: 200,
       onCell: (record) => ({
         rowSpan: record.rowSpan,
       }),
-      render: (text) => <strong>{text}</strong>
+      render: (text, record) => {
+        // 只在第一行显示应用名和勾选框
+        if (record.rowSpan === 0) return null;
+        
+        const appGroupKeys = record.appGroupKeys;
+        const allSelected = isAppAllSelected(appGroupKeys);
+        const indeterminate = isAppIndeterminate(appGroupKeys);
+        
+        return (
+          <Space>
+            <Checkbox
+              checked={allSelected}
+              indeterminate={indeterminate}
+              onChange={(e) => handleAppCheckboxChange(appGroupKeys, e.target.checked)}
+            />
+            <strong>{text}</strong>
+          </Space>
+        );
+      }
     },
     {
       title: '分组名',
